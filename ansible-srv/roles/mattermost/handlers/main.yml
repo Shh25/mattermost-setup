@@ -1,0 +1,18 @@
+- name: Start Mattermost service
+  service:
+    name: mattermost
+    enabled: yes
+    state: started
+    
+- name: Reload Mattermost service
+  systemd:
+    name: mattermost
+    state: started
+    daemon_reload: yes
+
+- name: Enable Mattermost service
+  systemd:
+    name: mattermost.service
+    enabled: yes
+
+

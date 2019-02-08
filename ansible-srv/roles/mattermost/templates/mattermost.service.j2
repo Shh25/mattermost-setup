@@ -1,0 +1,14 @@
+[Unit]
+Description=Mattermost
+After=syslog.target network.target mysql.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/mattermost/bin
+User={{ mattermost_user }}
+Group={{ mattermost_group }}
+ExecStart=/opt/mattermost/bin/platform
+PIDFile=/var/spool/mattermost/pid/master.pid
+
+[Install]
+WantedBy=multi-user.target

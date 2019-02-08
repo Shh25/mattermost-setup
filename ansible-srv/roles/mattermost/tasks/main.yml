@@ -1,0 +1,64 @@
+- name: Download binary from MatterMost website
+  become: yes
+  environment:
+    http_proxy: http://127.0.0.1:8080
+  get_url:
+    url: https://releases.mattermost.com/{{ mattermost_version }}/mattermost-{{ mattermost_version }}-linux-amd64.tar.gz
+    dest: /tmp/
+    use_proxy: yes
+
+- name: unpack mattermost archive
+  unarchive: 
+    src: /tmp/mattermost-{{ mattermost_version }}-linux-amd64.tar.gz 
+    dest: /opt/
+    copy: no
+  args:
+    creates: /opt/mattermost/bin/platform
+
+- name: create empty mattermost directory
+  file: 
+    path: /opt/mattermost/data
+    state: directory
+
+- name: Ensure group "{{ mattermost_group }}" exists
+  group:
+    name: "{{ mattermost_group }}"
+    state: present
+
+- name: Create mattermost user
+  user: 
+    name: "{{ mattermost_user }}"
+    group: "{{ mattermost_group }}"
+    system: yes
+    createhome: no        
+
+- name: Change mattermost directory permissions
+  file:
+    path: /opt/mattermost
+    state: directory
+    owner: "{{ mattermost_user }}"
+    group: "{{ mattermost_group }}"
+    recurse: yes
+
+- name: Edit /opt/mattermost/config/config.json
+  lineinfile:
+    dest: /opt/mattermost/config/config.json
+    regexp: '"DriverName": "mysql",'
+    line: '        "DriverName": "mysql",'
+    backrefs: yes
+
+- name: Edit /opt/mattermost/config/config.json
+  lineinfile:
+    dest: /opt/mattermost/config/config.json
+    regexp: '"DataSource":'
+    line: '        "DataSource": "{{ db_user }}:{{ db_password }}@tcp(127.0.0.1:3306)/{{ db_name }}?charset=utf8mb4,utf8&readTimeout=30s&writeTimeout=30s",'
+    backrefs: yes
+
+- name: Create mattermost systemd service 
+  template:
+    src: mattermost.service.j2
+    dest: /etc/systemd/system/mattermost.service
+    mode: 0666
+  notify:
+  - Reload Mattermost service
+  - Enable Mattermost service
