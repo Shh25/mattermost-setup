@@ -1,0 +1,9 @@
+---
+
+mattermost_version: "5.7.1"
+mattermost_user: "m_user"
+mattermost_group: "mattermost_group"
+db_user: "root"
+db_name: "mattermost"
+db_password: "hello"
+key_file: "{{ ansible_env.HOME }}/.ssh/web_srv"
