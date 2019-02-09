@@ -2,8 +2,7 @@
 - hosts: all
   become: yes
   remote_user: root
-  # vars:
-  #   - key_file: "{{ ansible_env.HOME }}/.ssh/web_srv"
+
   vars_files:
     - ./vars/common.yml
   pre_tasks: 
@@ -14,7 +13,6 @@
         owner: "{{ansible_user}}"
         state: directory
 
-    # - name: Add SSH for web-srv
   roles:
   - mysql
   - mattermost
