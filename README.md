@@ -57,12 +57,19 @@ chmod 600 ~/.ssh/web-srv
 ```
 cd /ansible-srv/
 ```
-6. Call ansible playbook main.yml where all the related playbooks and files are called from.
+6. (Recommended but optional) Modify database and other config variables. As your keys are not committed to the repository, these config variables in git do not leave your system exposed but it is recommended to not save them in Git and change them.
+```
+vim vars/common.yml
+```
+
+7. Call ansible playbook main.yml where all the related playbooks and files are called from.
 ````
 ansible-playbook main.yml -i inventory
 ````
-7. Open browser on http://192.168.33.100:8065 to open mattermost.
+8. Open browser on http://192.168.33.100:8065 to open mattermost.
 If everything installs correctly, the browser should open a mattermost window. 
+
+9. Login with user_1 as specified in vars/common file, add comment in team channel, check for message after login with user_2 as specified in vars/common file.
 
 ## ScreenCast link
 //TODO

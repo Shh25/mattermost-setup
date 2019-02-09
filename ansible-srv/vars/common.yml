@@ -1,5 +1,5 @@
 ---
-
+ansible_user: "root"
 mattermost_version: "5.7.1"
 mattermost_user: "m_user"
 mattermost_group: "mattermost_group"
@@ -7,3 +7,10 @@ db_user: "root"
 db_name: "mattermost"
 db_password: "hello"
 key_file: "{{ ansible_env.HOME }}/.ssh/web_srv"
+user_1_email: "abc@local.com"
+user_1_username: "abc"
+user_1_password: "abc123"
+user_2_email: "xyz@local.com"
+user_2_username: "xyz"
+user_2_password: "xyz123"
+team_name: "teamdemo"
