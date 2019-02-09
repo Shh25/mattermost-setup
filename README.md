@@ -72,7 +72,7 @@ If everything installs correctly, the browser should open a mattermost window.
 9. Login with user_1 as specified in vars/common file, add comment in team channel, check for message after login with user_2 as specified in vars/common file.
 
 ## ScreenCast link
-//TODO
+https://drive.google.com/file/d/1tnCCLj8mYyY-OZI4c0Kzzu1at7N2Zd82/view?usp=sharing
 
 ## Authors
 Shefali Agarwal (sdagarwa@ncsu.edu)
