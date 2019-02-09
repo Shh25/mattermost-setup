@@ -1,15 +1,18 @@
+# Start Mattermost service
 - name: Start Mattermost service
   service:
     name: mattermost
     enabled: yes
     state: started
-    
+
+# Reload Mattermost service 
 - name: Reload Mattermost service
   systemd:
     name: mattermost
     state: started
     daemon_reload: yes
 
+# Enable Mattermost service
 - name: Enable Mattermost service
   systemd:
     name: mattermost.service

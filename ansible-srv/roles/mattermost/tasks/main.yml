@@ -1,3 +1,4 @@
+# Download Mattermost binary file
 - name: Download binary from MatterMost website
   become: yes
   environment:
@@ -7,7 +8,8 @@
     dest: /tmp/
     use_proxy: yes
 
-- name: unpack mattermost archive
+# Unzip mattermost archive
+- name: Unpack mattermost archive
   unarchive: 
     src: /tmp/mattermost-{{ mattermost_version }}-linux-amd64.tar.gz 
     dest: /opt/
@@ -15,16 +17,19 @@
   args:
     creates: /opt/mattermost/bin/platform
 
-- name: create empty mattermost directory
+# Create empty directory for Mattermost data
+- name: Create empty mattermost directory
   file: 
     path: /opt/mattermost/data
     state: directory
 
+# Create mattermost user-group
 - name: Ensure group "{{ mattermost_group }}" exists
   group:
     name: "{{ mattermost_group }}"
     state: present
 
+# Create mattermost db user
 - name: Create mattermost user
   user: 
     name: "{{ mattermost_user }}"
@@ -32,6 +37,7 @@
     system: yes
     createhome: no        
 
+# Change mattermost directory permissions
 - name: Change mattermost directory permissions
   file:
     path: /opt/mattermost
@@ -40,20 +46,23 @@
     group: "{{ mattermost_group }}"
     recurse: yes
 
-- name: Edit /opt/mattermost/config/config.json
+# Modify driver from config.json to mysql
+- name: Modify Drivername /opt/mattermost/config/config.json
   lineinfile:
     dest: /opt/mattermost/config/config.json
     regexp: '"DriverName": "mysql",'
     line: '        "DriverName": "mysql",'
     backrefs: yes
 
-- name: Edit /opt/mattermost/config/config.json
+# Modify datasource from config.json to mysql link
+- name: Modify Datasource /opt/mattermost/config/config.json
   lineinfile:
     dest: /opt/mattermost/config/config.json
     regexp: '"DataSource":'
     line: '        "DataSource": "{{ db_user }}:{{ db_password }}@tcp(127.0.0.1:3306)/{{ db_name }}?charset=utf8mb4,utf8&readTimeout=30s&writeTimeout=30s",'
     backrefs: yes
 
+# Create mattermost service
 - name: Create mattermost systemd service 
   template:
     src: mattermost.service.j2
@@ -62,3 +71,37 @@
   notify:
   - Reload Mattermost service
   - Enable Mattermost service
+
+# Create team if does not exist
+- name: Check if Team exists
+  command: /opt/mattermost/bin/mattermost team search {{team_name}}
+  register: team_exists
+
+- name: Create Team
+  command: /opt/mattermost/bin/mattermost team create --name {{team_name}} --display_name {{team_name}}
+  when: team_exists.stderr == ""
+
+# Create user 1 if does not exist
+- name: Check if User_1 exists
+  command: /opt/mattermost/bin/mattermost user search {{user_1_email}}
+  register: user_1_exists
+
+- name: Create Mattermost User_1
+  command: /opt/mattermost/bin/mattermost user create --email {{user_1_email}} --username {{user_1_username}} --password {{user_1_password}}
+  when: user_1_exists.stderr.find('Unable') != -1
+
+# Create user 2 if does not exist
+- name: Check if User_2 exists
+  command: /opt/mattermost/bin/mattermost user search {{user_2_email}}
+  register: user_2_exists
+
+- name: Create Mattermost User_2
+  command: /opt/mattermost/bin/mattermost user create --email {{user_2_email}} --username {{user_2_username}} --password {{user_2_password}}
+  when: user_2_exists.stderr.find('Unable') != -1
+
+# Add users to the team
+- name: Add user_1 to team
+  command: /opt/mattermost/bin/mattermost team add {{team_name}} {{user_1_email}} {{user_1_username}}
+
+- name: Add user_2 to team
+  command: /opt/mattermost/bin/mattermost team add {{team_name}} {{user_2_email}} {{user_2_username}}
